@@ -26,7 +26,7 @@ import (
 // These metrics report cumulative values over the lifetime of the process.
 // Heapster also reports gauges (e.g., "cpu/usage_rate"). Cumulative metrics
 // are more confusing than helpful, so let's not send them in the first place.
-var blacklist = map[string]struct{}{
+var denylist = map[string]struct{}{
 	"cpu/usage":                {},
 	"memory/major_page_faults": {},
 	"memory/page_faults":       {},
@@ -57,7 +57,7 @@ func (sink *honeycombSink) ExportData(dataBatch *core.DataBatch) {
 	for _, metricSet := range dataBatch.MetricSets {
 		data := make(map[string]interface{})
 		for metricName, metricValue := range metricSet.MetricValues {
-			if _, ok := blacklist[metricName]; ok {
+			if _, ok := denylist[metricName]; ok {
 				continue
 			}
 			data[metricName] = metricValue.GetValue()
